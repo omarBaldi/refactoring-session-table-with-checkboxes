@@ -41,4 +41,4 @@ const IssueTableRow: FC<IssueTableRowProps> = ({
   );
 };
 
-export default IssueTableRow;
+export default React.memo(IssueTableRow);

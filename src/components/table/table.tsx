@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { IssueTableRow } from '../issue-table-row';
 import TablePropsType, { Issue } from './dto';
@@ -136,26 +136,27 @@ function Table({ issues }: TablePropsType) {
     };
   }, [issues]);
 
-  const handleIssueClick = ({
-    target,
-  }: React.ChangeEvent<HTMLInputElement>): void => {
-    const { checked: isCurrentIssueChecked, dataset } = target;
-    const currentIssueId: string | undefined = dataset['id'];
+  const handleIssueClick = useCallback(
+    ({ target }: React.ChangeEvent<HTMLInputElement>): void => {
+      const { checked: isCurrentIssueChecked, dataset } = target;
+      const currentIssueId: string | undefined = dataset['id'];
 
-    if (typeof currentIssueId === 'undefined') return;
+      if (typeof currentIssueId === 'undefined') return;
 
-    setSelectedIssues((prevSelectedIssues) => {
-      const updatedIssues = new Map(prevSelectedIssues);
+      setSelectedIssues((prevSelectedIssues) => {
+        const updatedIssues = new Map(prevSelectedIssues);
 
-      if (isCurrentIssueChecked) {
-        updatedIssues.set(currentIssueId, isCurrentIssueChecked);
-      } else {
-        updatedIssues.delete(currentIssueId);
-      }
+        if (isCurrentIssueChecked) {
+          updatedIssues.set(currentIssueId, isCurrentIssueChecked);
+        } else {
+          updatedIssues.delete(currentIssueId);
+        }
 
-      return updatedIssues;
-    });
-  };
+        return updatedIssues;
+      });
+    },
+    []
+  );
 
   const toggleAllIssues = ({
     target,
