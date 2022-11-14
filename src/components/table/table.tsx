@@ -38,11 +38,9 @@ function Table({ issues }: TablePropsType) {
       setSelectedIssues((prevSelectedIssues) => {
         const updatedIssues = new Map(prevSelectedIssues);
 
-        if (isCurrentIssueChecked) {
-          updatedIssues.set(currentIssueId, isCurrentIssueChecked);
-        } else {
-          updatedIssues.delete(currentIssueId);
-        }
+        isCurrentIssueChecked
+          ? updatedIssues.set(currentIssueId, isCurrentIssueChecked)
+          : updatedIssues.delete(currentIssueId);
 
         return updatedIssues;
       });
