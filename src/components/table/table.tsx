@@ -3,6 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 import TablePropsType, { Issue } from './dto';
 import styles from './styles.module.css';
 
+/**
+ *
+ * TODO: define function to change the checked value of the issue clicked
+ * TODO: being able to know the amount of issues already selected (active)
+ * TODO: define function to toggle either toggle on/off all of the issues
+ *
+ * @param {Array} issues
+ */
 function Table({ issues }: TablePropsType) {
   const [checkedState, setCheckedState] = useState(
     new Array(issues.length).fill({
@@ -10,12 +18,13 @@ function Table({ issues }: TablePropsType) {
       backgroundColor: '#ffffff',
     })
   );
+
   const [selectDeselectAllIsChecked, setSelectDeselectAllIsChecked] =
     useState(false);
 
   const [numCheckboxesSelected, setNumCheckboxesSelected] = useState(0);
 
-  const handleOnChange = (position: number) => {
+  /* const handleOnChange = (position: number) => {
     const updatedCheckedState = checkedState.map((element, index) => {
       if (position === index) {
         return {
@@ -39,9 +48,9 @@ function Table({ issues }: TablePropsType) {
     setNumCheckboxesSelected(totalSelected);
 
     handleIndeterminateCheckbox(totalSelected);
-  };
+  }; */
 
-  const handleIndeterminateCheckbox = (total: number) => {
+  /* const handleIndeterminateCheckbox = (total: number) => {
     const indeterminateCheckbox = document.getElementById(
       'custom-checkbox-selectDeselectAll'
     );
@@ -66,8 +75,8 @@ function Table({ issues }: TablePropsType) {
       setSelectDeselectAllIsChecked(true);
     }
   };
-
-  const handleSelectDeselectAll = (event: any) => {
+ */
+  /* const handleSelectDeselectAll = (event: any) => {
     let { checked } = event.target;
 
     const allTrueArray: any[] = [];
@@ -95,7 +104,7 @@ function Table({ issues }: TablePropsType) {
       }, 0);
     setNumCheckboxesSelected(totalSelected);
     setSelectDeselectAllIsChecked((prevState) => !prevState);
-  };
+  }; */
 
   return (
     <table className={styles.table}>
@@ -104,12 +113,13 @@ function Table({ issues }: TablePropsType) {
           <th>
             <input
               className={styles.checkbox}
-              type={'checkbox'}
-              id={'custom-checkbox-selectDeselectAll'}
-              name={'custom-checkbox-selectDeselectAll'}
-              value={'custom-checkbox-selectDeselectAll'}
-              checked={selectDeselectAllIsChecked}
-              onChange={handleSelectDeselectAll}
+              type='checkbox'
+              //* the checked value will either be true
+              //* if all of the issues are set to true
+              //! temporarily set to false
+              checked={false}
+              //TODO [1]: describe function
+              //onChange={handleSelectDeselectAll}
             />
           </th>
           <th className={styles.numChecked}>
@@ -128,34 +138,28 @@ function Table({ issues }: TablePropsType) {
 
       <tbody>
         {issues.map(({ name, message, status }, index) => {
-          let issueIsOpen = status === 'open';
-          let onClick: any = issueIsOpen ? () => handleOnChange(index) : null;
-          let stylesTr = issueIsOpen ? styles.openIssue : styles.resolvedIssue;
+          const issueIsOpen = status === 'open';
 
           return (
             <tr
-              className={stylesTr}
-              style={checkedState[index]}
               key={index}
-              onClick={onClick}
+              className={issueIsOpen ? styles.openIssue : styles.resolvedIssue}
+              style={checkedState[index]}
             >
               <td>
                 {issueIsOpen ? (
                   <input
                     className={styles.checkbox}
-                    type={'checkbox'}
+                    type='checkbox'
                     id={`custom-checkbox-${index}`}
                     name={name}
                     value={name}
                     checked={checkedState[index].checked}
-                    onChange={() => handleOnChange(index)}
+                    //TODO: define function
+                    //onChange={() => handleOnChange(index)}
                   />
                 ) : (
-                  <input
-                    className={styles.checkbox}
-                    type={'checkbox'}
-                    disabled
-                  />
+                  <input className={styles.checkbox} type='checkbox' disabled />
                 )}
               </td>
               <td>{name}</td>
