@@ -122,8 +122,17 @@ function Table({ issues }: TablePropsType) {
 
   const selectedIssuesAmount: number = selectedIssues.size;
 
-  const issuesWithId = useMemo<(Issue & { id: string })[]>(() => {
-    return issues.map((issue) => ({ ...issue, id: uuidv4() }));
+  const { issuesWithId, issuesOpenedAmount } = useMemo<{
+    issuesWithId: (Issue & { id: string })[];
+    issuesOpenedAmount: number;
+  }>(() => {
+    const issuesWithId = issues.map((issue) => ({ ...issue, id: uuidv4() }));
+
+    return {
+      issuesWithId,
+      issuesOpenedAmount: issuesWithId.filter(({ status }) => status === 'open')
+        .length,
+    };
   }, [issues]);
 
   const handleIssueClick = ({
@@ -135,7 +144,7 @@ function Table({ issues }: TablePropsType) {
     if (typeof currentIssueId === 'undefined') return;
 
     setSelectedIssues((prevSelectedIssues) => {
-      const updatedIssues: typeof selectedIssues = new Map(prevSelectedIssues);
+      const updatedIssues = new Map(prevSelectedIssues);
 
       if (isCurrentIssueChecked) {
         updatedIssues.set(currentIssueId, isCurrentIssueChecked);
@@ -147,6 +156,28 @@ function Table({ issues }: TablePropsType) {
     });
   };
 
+  const toggleAllIssues = ({
+    target,
+  }: React.ChangeEvent<HTMLInputElement>): void => {
+    const shouldAllIssuesBeSelected: boolean = target.checked;
+
+    setSelectedIssues((prevSelectedIssues) => {
+      if (!shouldAllIssuesBeSelected) return new Map();
+
+      const updated = new Map(prevSelectedIssues);
+
+      for (const { id, status } of issuesWithId) {
+        const isIssueAlreadySelected: boolean = updated.get(id) ?? false;
+
+        if (!isIssueAlreadySelected && status === 'open') {
+          updated.set(id, true);
+        }
+      }
+
+      return updated;
+    });
+  };
+
   return (
     <table className={styles.table}>
       <thead>
@@ -155,12 +186,8 @@ function Table({ issues }: TablePropsType) {
             <input
               className={styles.checkbox}
               type='checkbox'
-              //* the checked value will either be true
-              //* if all of the issues are set to true
-              //! temporarily set to false
-              checked={false}
-              //TODO: describe function
-              //onChange={handleSelectDeselectAll}
+              checked={issuesOpenedAmount === selectedIssuesAmount}
+              onChange={toggleAllIssues}
             />
           </th>
           <th className={styles.numChecked}>
