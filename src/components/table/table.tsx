@@ -120,6 +120,8 @@ function Table({ issues }: TablePropsType) {
     new Map()
   );
 
+  const selectedIssuesAmount: number = selectedIssues.size;
+
   const issuesWithId = useMemo<(Issue & { id: string })[]>(() => {
     return issues.map((issue) => ({ ...issue, id: uuidv4() }));
   }, [issues]);
@@ -162,8 +164,8 @@ function Table({ issues }: TablePropsType) {
             />
           </th>
           <th className={styles.numChecked}>
-            {numCheckboxesSelected
-              ? `Selected ${numCheckboxesSelected}`
+            {selectedIssuesAmount > 0
+              ? `Selected ${selectedIssuesAmount}`
               : 'None selected'}
           </th>
         </tr>
@@ -184,21 +186,19 @@ function Table({ issues }: TablePropsType) {
             <tr
               key={id}
               className={isIssueOpen ? styles.openIssue : styles.resolvedIssue}
-              //TODO: apply style depending wheter or not the current issue is checked
-              //style={checkedState[index]}
+              style={{
+                backgroundColor: isIssueSelected ? '#ffffff' : '#eeeeee',
+              }}
             >
               <td>
-                {isIssueOpen ? (
-                  <input
-                    type='checkbox'
-                    className={styles.checkbox}
-                    checked={isIssueSelected}
-                    data-id={id}
-                    onChange={handleIssueClick}
-                  />
-                ) : (
-                  <input className={styles.checkbox} type='checkbox' disabled />
-                )}
+                <input
+                  type='checkbox'
+                  className={styles.checkbox}
+                  checked={isIssueSelected}
+                  data-id={id}
+                  disabled={!isIssueOpen}
+                  onChange={handleIssueClick}
+                />
               </td>
               <td>{name}</td>
               <td>{message}</td>
