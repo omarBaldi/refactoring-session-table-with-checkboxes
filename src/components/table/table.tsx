@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { IssueTableRow } from '../issue-table-row';
 import TablePropsType, { Issue } from './dto';
 import styles from './styles.module.css';
 
@@ -205,38 +206,17 @@ function Table({ issues }: TablePropsType) {
       </thead>
 
       <tbody>
-        {issuesWithId.map(({ id, name, message, status }, _index: number) => {
-          const isIssueOpen: boolean = status === 'open';
-          const isIssueSelected: boolean = selectedIssues.get(id) ?? false;
+        {issuesWithId.map((issue, _index: number) => {
+          const isIssueSelected: boolean =
+            selectedIssues.get(issue.id) ?? false;
 
           return (
-            <tr
-              key={id}
-              className={isIssueOpen ? styles.openIssue : styles.resolvedIssue}
-              style={{
-                backgroundColor: isIssueSelected ? '#ffffff' : '#eeeeee',
-              }}
-            >
-              <td>
-                <input
-                  type='checkbox'
-                  className={styles.checkbox}
-                  checked={isIssueSelected}
-                  data-id={id}
-                  disabled={!isIssueOpen}
-                  onChange={handleIssueClick}
-                />
-              </td>
-              <td>{name}</td>
-              <td>{message}</td>
-              <td>
-                <span
-                  className={
-                    isIssueOpen ? styles.greenCircle : styles.redCircle
-                  }
-                />
-              </td>
-            </tr>
+            <IssueTableRow
+              key={issue.id}
+              {...issue}
+              isSelected={isIssueSelected}
+              handleIssueClick={handleIssueClick}
+            />
           );
         })}
       </tbody>
