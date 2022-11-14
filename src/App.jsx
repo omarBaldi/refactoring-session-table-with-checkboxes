@@ -1,5 +1,5 @@
-import Table from "./Table";
-import issues from "./issues";
+import { Table } from './components/table';
+import issues from './issues';
 
 function App() {
   return <Table issues={issues} />;
