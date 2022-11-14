@@ -76,6 +76,7 @@ function Table({ issues }: TablePropsType) {
     }
   };
  */
+
   /* const handleSelectDeselectAll = (event: any) => {
     let { checked } = event.target;
 
@@ -106,6 +107,44 @@ function Table({ issues }: TablePropsType) {
     setSelectDeselectAllIsChecked((prevState) => !prevState);
   }; */
 
+  /*
+   *-----------------------------------------------------*
+   *                   NEW REFACTORED CODE
+   *-----------------------------------------------------*
+   */
+
+  /**
+   * @desc contains the id and the checked value (true) of the issue selected
+   */
+  const [selectedIssues, setSelectedIssues] = useState<Map<string, boolean>>(
+    new Map()
+  );
+
+  const issuesWithId = useMemo<(Issue & { id: string })[]>(() => {
+    return issues.map((issue) => ({ ...issue, id: uuidv4() }));
+  }, [issues]);
+
+  const handleIssueClick = ({
+    target,
+  }: React.ChangeEvent<HTMLInputElement>): void => {
+    const { checked: isCurrentIssueChecked, dataset } = target;
+    const currentIssueId: string | undefined = dataset['id'];
+
+    if (typeof currentIssueId === 'undefined') return;
+
+    setSelectedIssues((prevSelectedIssues) => {
+      const updatedIssues: typeof selectedIssues = new Map(prevSelectedIssues);
+
+      if (isCurrentIssueChecked) {
+        updatedIssues.set(currentIssueId, isCurrentIssueChecked);
+      } else {
+        updatedIssues.delete(currentIssueId);
+      }
+
+      return updatedIssues;
+    });
+  };
+
   return (
     <table className={styles.table}>
       <thead>
@@ -118,7 +157,7 @@ function Table({ issues }: TablePropsType) {
               //* if all of the issues are set to true
               //! temporarily set to false
               checked={false}
-              //TODO [1]: describe function
+              //TODO: describe function
               //onChange={handleSelectDeselectAll}
             />
           </th>
@@ -137,26 +176,25 @@ function Table({ issues }: TablePropsType) {
       </thead>
 
       <tbody>
-        {issues.map(({ name, message, status }, index) => {
-          const issueIsOpen = status === 'open';
+        {issuesWithId.map(({ id, name, message, status }, _index: number) => {
+          const isIssueOpen: boolean = status === 'open';
+          const isIssueSelected: boolean = selectedIssues.get(id) ?? false;
 
           return (
             <tr
-              key={index}
-              className={issueIsOpen ? styles.openIssue : styles.resolvedIssue}
-              style={checkedState[index]}
+              key={id}
+              className={isIssueOpen ? styles.openIssue : styles.resolvedIssue}
+              //TODO: apply style depending wheter or not the current issue is checked
+              //style={checkedState[index]}
             >
               <td>
-                {issueIsOpen ? (
+                {isIssueOpen ? (
                   <input
-                    className={styles.checkbox}
                     type='checkbox'
-                    id={`custom-checkbox-${index}`}
-                    name={name}
-                    value={name}
-                    checked={checkedState[index].checked}
-                    //TODO: define function
-                    //onChange={() => handleOnChange(index)}
+                    className={styles.checkbox}
+                    checked={isIssueSelected}
+                    data-id={id}
+                    onChange={handleIssueClick}
                   />
                 ) : (
                   <input className={styles.checkbox} type='checkbox' disabled />
@@ -165,11 +203,11 @@ function Table({ issues }: TablePropsType) {
               <td>{name}</td>
               <td>{message}</td>
               <td>
-                {issueIsOpen ? (
-                  <span className={styles.greenCircle} />
-                ) : (
-                  <span className={styles.redCircle} />
-                )}
+                <span
+                  className={
+                    isIssueOpen ? styles.greenCircle : styles.redCircle
+                  }
+                />
               </td>
             </tr>
           );
